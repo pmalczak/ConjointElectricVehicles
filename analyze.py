@@ -5,7 +5,7 @@ import bisect
 import math
 
 
-def readHierarchicalDf(fileloc):
+def read_hierarchical_df(fileloc):
 
     df = pd.read_csv(fileloc, header=None)
     dfCols = df.iloc[:2, ].T
@@ -26,7 +26,7 @@ def readHierarchicalDf(fileloc):
     return df
 
 
-def createAugmentedProductsDf(df, dictCatAttributes):
+def create_augmented_products_df(df, dictCatAttributes):
 
     categoricalAttr = list(dictCatAttributes.keys())
     setAttributes = [list(dictCatAttributes[x]) for x in categoricalAttr]
@@ -860,7 +860,7 @@ def InFlowsOutFlows(simDf, ProductsDf, rawInflowsOutflows, numDynamic, offerMatc
            MarketNumBySegmentProvider, MarketNumByProvider
 
 
-def performPrecomputation(N, writeUtility, folderStr, destFolder):
+def perform_precomputation(N, writeUtility, folderStr, destFolder):
 
     ProductsDf = pd.read_csv(folderStr + "leaseOffers.csv")
 
@@ -895,13 +895,13 @@ def performPrecomputation(N, writeUtility, folderStr, destFolder):
         [base_V_ARPU_Rev_in['brand'], base_V_ARPU_Rev_in[['Share of SIOs', 'EBIT margin per SIO',
                                                           'Fixed cost percentage']].astype(float)], axis=1)
 
-    augmentProductsDf = createAugmentedProductsDf(ProductsDf, dictCatAttributes)
+    augmentProductsDf = create_augmented_products_df(ProductsDf, dictCatAttributes)
 
     if writeUtility:
         utilityDf = simulateUtility(N, productShare, dictNumAttributes, dictCatAttributes)
         utilityDf.to_csv(folderStr + 'UtilityScoresEV.csv', index=False)
     else:
-        utilityDf = readHierarchicalDf(folderStr + "UtilityScoresEV.csv")
+        utilityDf = read_hierarchical_df(folderStr + "UtilityScoresEV.csv")
 
     marketAssumptions = [re_contracting_df.copy(), churn_df.copy(), base_ARPU_df.copy(), base_V_ARPU_Rev_in.copy(),
                          pd.DataFrame(utilityDf[['id', 'segment', 'current brand']].values,
@@ -925,6 +925,7 @@ def performPrecomputation(N, writeUtility, folderStr, destFolder):
 
     print("Computation Completed and Saved to %s folder." %destFolder)
 
+
 if __name__ == '__main__':
 
     folderStr = './Data/'
@@ -937,12 +938,12 @@ if __name__ == '__main__':
     setType = pd.Series(['Sedan', 'SUV'])
     dictCatAttributes = {'brand': setBrands, 'energy': setEnergy, 'vehicle_type': setType}
 
-    performPrecomputation(N, writeUtility, folderStr, destFolder)
+    perform_precomputation(N, writeUtility, folderStr, destFolder)
 
     ProductsDf = pd.read_csv(folderStr + "leaseOffers.csv")
-    augmentProductsDf = createAugmentedProductsDf(ProductsDf, dictCatAttributes)
+    augmentProductsDf = create_augmented_products_df(ProductsDf, dictCatAttributes)
 
-    offerMatching = readHierarchicalDf(destFolder + 'offerMatching.csv')
+    offerMatching = read_hierarchical_df(destFolder + 'offerMatching.csv')
     simResult = simulatorOutput(augmentProductsDf, offerMatching)
 
     rawInflowsOutflows = InFlowsOutFlowsBase(simResult, ProductsDf, offerMatching)
